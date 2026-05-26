@@ -1,20 +1,75 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Send, Loader2, Plus, Pencil, Mail } from "lucide-react";
+import { Search, Send, Loader2, Plus, Pencil, Mail, Sparkles } from "lucide-react";
 import Badge from "./Badge.jsx";
 import { ToastStack } from "./Toast.jsx";
 import StudentModal from "./StudentModal.jsx";
 import BulkSendModal from "./BulkSendModal.jsx";
 import WhatsAppPreviewModal from "./WhatsAppPreviewModal.jsx";
 import ReportCardPreviewModal from "./ReportCardPreviewModal.jsx";
+import TeacherEntryModal from "./TeacherEntryModal.jsx";
 
 const STORAGE_KEY = "school_demo_students_v1";
 
 const DEFAULT_STUDENTS = [
-  { id: "s1", name: "Amina Yusuf", whatsapp: "+234 803 123 4567", grade: "Grade 3", feeStatus: "Paid", reportStatus: "Not Sent" },
-  { id: "s2", name: "Chinedu Okafor", whatsapp: "+234 809 555 0192", grade: "Grade 5", feeStatus: "Pending", reportStatus: "Not Sent" },
-  { id: "s3", name: "Grace Mensah", whatsapp: "+233 24 123 7788", grade: "Grade 2", feeStatus: "Paid", reportStatus: "Not Sent" },
-  { id: "s4", name: "Liam Ndlovu", whatsapp: "+27 71 234 9901", grade: "Grade 6", feeStatus: "Paid", reportStatus: "Not Sent" },
-  { id: "s5", name: "Zara Abiola", whatsapp: "+234 802 777 4400", grade: "Grade 1", feeStatus: "Pending", reportStatus: "Not Sent" },
+  {
+    id: "s1",
+    classId: "g3-a",
+    admissionNo: "ADM-2026-001",
+    attendance: 96,
+    name: "Amina Yusuf",
+    whatsapp: "+234 803 123 4567",
+    grade: "Grade 3",
+    feeStatus: "Paid",
+    reportStatus: "Not Sent",
+  },
+
+  {
+    id: "s2",
+    classId: "g3-b",
+    admissionNo: "ADM-2026-002",
+    attendance: 91,
+    name: "Chinedu Okafor",
+    whatsapp: "+234 809 555 0192",
+    grade: "Grade 5",
+    feeStatus: "Pending",
+    reportStatus: "Not Sent",
+  },
+
+  {
+    id: "s3",
+    classId: "g2-a",
+    admissionNo: "ADM-2026-003",
+    attendance: 97,
+    name: "Grace Mensah",
+    whatsapp: "+233 24 123 7788",
+    grade: "Grade 2",
+    feeStatus: "Paid",
+    reportStatus: "Not Sent",
+  },
+
+  {
+    id: "s4",
+    classId: "g1-b",
+    admissionNo: "ADM-2026-004",
+    attendance: 88,
+    name: "Liam Ndlovu",
+    whatsapp: "+27 71 234 9901",
+    grade: "Grade 6",
+    feeStatus: "Paid",
+    reportStatus: "Not Sent",
+  },
+
+  {
+    id: "s5",
+    classId: "g1-a",
+    admissionNo: "ADM-2026-005",
+    attendance: 94,
+    name: "Zara Abiola",
+    whatsapp: "+234 802 777 4400",
+    grade: "Grade 1",
+    feeStatus: "Pending",
+    reportStatus: "Not Sent",
+  },
 ];
 
 function makeId() {
@@ -23,7 +78,17 @@ function makeId() {
     : `s_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
-export default function StudentTable() {
+function generateAdmissionNo(classId) {
+  const year = "2026";
+
+  const classPart = classId?.toUpperCase() || "GEN";
+
+  const random = Math.floor(Math.random() * 900 + 100);
+
+  return `ADM-${year}-${classPart}-${random}`;
+}
+
+export default function StudentTable({ selectedClass }) {
   const [students, setStudents] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -82,10 +147,19 @@ export default function StudentTable() {
 
   function saveStudent(payload) {
     if (studentModalMode === "add") {
-      const newStudent = { id: makeId(), ...payload, reportStatus: "Not Sent" };
-      setStudents((prev) => [newStudent, ...prev]);
-      pushToast({ type: "success", title: "Student added", message: `${newStudent.name} added to the list.` });
-      return;
+      const newStudent = {
+  id: makeId(),
+
+  admissionNo:
+    payload.admissionNo ||
+    generateAdmissionNo(payload.classId),
+
+  attendance: payload.attendance || 95,
+
+  ...payload,
+
+  reportStatus: "Not Sent",
+};
     }
 
     setStudents((prev) =>
@@ -121,9 +195,21 @@ export default function StudentTable() {
   // Report preview modal
 const [reportOpen, setReportOpen] = useState(false);
 const [reportStudent, setReportStudent] = useState(null);
+const [teacherEntryOpen, setTeacherEntryOpen] = useState(false);
+const [dynamicReport, setDynamicReport] = useState(null);
 
 function openReport(student) {
   setReportStudent(student);
+  setReportOpen(true);
+}
+
+function openTeacherEntry() {
+  setTeacherEntryOpen(true);
+}
+
+function handlePreviewReport(reportData) {
+  setDynamicReport(reportData);
+  setTeacherEntryOpen(false);
   setReportOpen(true);
 }
 
@@ -185,12 +271,26 @@ function openReport(student) {
   }
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return students;
-    return students.filter((s) =>
-      `${s.name} ${s.whatsapp} ${s.grade} ${s.feeStatus} ${s.reportStatus}`.toLowerCase().includes(q)
+  let result = students;
+
+  // Filter by selected class
+  if (selectedClass?.id) {
+    result = result.filter((s) => s.classId === selectedClass.id);
+  }
+
+  // Search filter
+  const q = query.trim().toLowerCase();
+
+  if (q) {
+    result = result.filter((s) =>
+      `${s.name} ${s.whatsapp} ${s.grade} ${s.feeStatus} ${s.reportStatus} ${s.admissionNo}`
+        .toLowerCase()
+        .includes(q)
     );
-  }, [students, query]);
+  }
+
+  return result;
+}, [students, query, selectedClass]);
 
   const feeBadge = (status) =>
     status === "Paid" ? <Badge tone="green">Paid</Badge> : <Badge tone="red">Pending</Badge>;
@@ -229,61 +329,115 @@ function openReport(student) {
     <>
       <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {/* Header */}
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
-          <div>
-            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Student Overview
-            </div>
-            <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              Add/edit students and dispatch report cards with a fee-status check.
-            </div>
-          </div>
+<div className="border-b border-slate-200 p-6 dark:border-slate-800">
 
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <button
-              type="button"
-              onClick={openAdd}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-950/40"
-            >
-              <Plus className="h-4 w-4" />
-              Add Student
-            </button>
+  <div className="flex flex-col gap-6">
 
-            <button
-              type="button"
-              onClick={openBulk}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-              title="Simulate sending to all students"
-            >
-              <Mail className="h-4 w-4" />
-              Bulk Send (Demo)
-            </button>
+    {/* Top Area */}
+    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
 
-            <div className="w-full sm:w-72">
-              <label htmlFor="student-search" className="sr-only">
-                Search students
-              </label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <input
-                  id="student-search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search by name, number, grade…"
-                  className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-950/40"
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={resetDemo}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 dark:focus:ring-blue-950/40"
-            >
-              Reset Demo
-            </button>
-          </div>
+      {/* Left */}
+      <div className="max-w-xl">
+        <div className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+          Student Overview
         </div>
+
+        <div className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+          Manage students, attendance, reports and fee-gated report dispatching across all grades and classes.
+        </div>
+      </div>
+
+      {/* Right Info Pills */}
+      <div className="flex flex-wrap gap-2">
+
+        <div className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+          {filtered.length} Students
+        </div>
+
+        <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+          Attendance Tracking
+        </div>
+
+        <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+          AI Report Generation
+        </div>
+
+      </div>
+    </div>
+
+    {/* Toolbar */}
+    <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
+
+      {/* Left Actions */}
+      <div className="flex flex-wrap gap-3">
+
+        {/* Add Student */}
+        <button
+          type="button"
+          onClick={openAdd}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-950/40"
+        >
+          <Plus className="h-4 w-4" />
+          Add Student
+        </button>
+
+        {/* Teacher Entry */}
+        <button
+          type="button"
+          onClick={openTeacherEntry}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+        >
+          <Sparkles className="h-4 w-4" />
+          Teacher Entry
+        </button>
+
+        {/* Bulk Send */}
+        <button
+          type="button"
+          onClick={openBulk}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+        >
+          <Mail className="h-4 w-4" />
+          Bulk Send
+        </button>
+
+        {/* Reset */}
+        <button
+          type="button"
+          onClick={resetDemo}
+          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 dark:focus:ring-blue-950/40"
+        >
+          Reset Demo
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="w-full 2xl:w-[360px]">
+        <label htmlFor="student-search" className="sr-only">
+          Search students
+        </label>
+
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
+
+          <input
+            id="student-search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, admission no, grade..."
+            className="
+              w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm
+              text-slate-900 placeholder:text-slate-400
+              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
+              dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
+              dark:placeholder:text-slate-500 dark:focus:ring-blue-950/40
+            "
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* Table */}
         <div className="max-h-[420px] overflow-auto">
@@ -291,8 +445,10 @@ function openReport(student) {
             <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-950/60">
               <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                 <th className="px-4 py-3">Student Name</th>
+                <th className="px-4 py-3">Admission No</th>
                 <th className="px-4 py-3">Parent WhatsApp</th>
                 <th className="px-4 py-3">Grade Level</th>
+                <th className="px-4 py-3">Attendance</th>
                 <th className="px-4 py-3">Fee Status</th>
                 <th className="px-4 py-3">Report Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -328,11 +484,39 @@ function openReport(student) {
                       </td>
 
                       <td className="px-4 py-4">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {s.admissionNo}
+                        </div>
+
+                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          Official Student ID
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
                         <div className="text-sm text-slate-900 dark:text-slate-100">{s.whatsapp}</div>
                         <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Preferred: WhatsApp</div>
                       </td>
 
                       <td className="px-4 py-4 text-sm text-slate-900 dark:text-slate-100">{s.grade}</td>
+                      <td className="px-4 py-4">
+                        <div
+                          className={[
+                            "inline-flex rounded-full px-2.5 py-1 text-xs font-bold",
+                            s.attendance >= 95
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                              : s.attendance >= 90
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                              : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
+                          ].join(" ")}
+                        >
+                          {s.attendance}%
+                        </div>
+
+                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          Monthly attendance
+                        </div>
+                      </td>
                       <td className="px-4 py-4">{feeBadge(s.feeStatus)}</td>
                       <td className="px-4 py-4">{reportBadge(s.reportStatus)}</td>
 
@@ -435,8 +619,16 @@ function openReport(student) {
 
       <ReportCardPreviewModal
         open={reportOpen}
-        student={reportStudent}
+        reportData={dynamicReport}
         onClose={() => setReportOpen(false)}
+      />
+
+      <TeacherEntryModal
+        open={teacherEntryOpen}
+        students={students}
+        selectedClass={selectedClass}
+        onClose={() => setTeacherEntryOpen(false)}
+        onPreview={handlePreviewReport}
       />
 
       <ToastStack toasts={toasts} removeToast={removeToast} />

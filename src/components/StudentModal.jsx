@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { SCHOOL_STRUCTURE } from "../data/schoolStructure";
+
+const CLASS_OPTIONS = SCHOOL_STRUCTURE.flatMap((g) =>
+  g.classes.map((c) => ({
+    id: c.id,
+    label: `${g.grade} — ${c.name}`,
+  }))
+);
 
 const GRADES = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6"];
 const FEE_STATUSES = ["Paid", "Pending"];
@@ -24,11 +32,14 @@ export default function StudentModal({
   const nameInputRef = useRef(null);
 
   const [form, setForm] = useState(() => ({
-    name: "",
-    whatsapp: "",
-    grade: "Grade 1",
-    feeStatus: "Pending",
-  }));
+  name: "",
+  admissionNo: "",
+  attendance: 95,
+  classId: "g1-a",
+  whatsapp: "",
+  grade: "Grade 1",
+  feeStatus: "Pending",
+}));
 
   const [errors, setErrors] = useState({});
 
@@ -39,6 +50,9 @@ export default function StudentModal({
     setErrors({});
     setForm({
       name: initialStudent?.name || "",
+      admissionNo: initialStudent?.admissionNo || "",
+      attendance: initialStudent?.attendance || 95,
+      classId: initialStudent?.classId || "g1-a",
       whatsapp: initialStudent?.whatsapp || "",
       grade: initialStudent?.grade || "Grade 1",
       feeStatus: initialStudent?.feeStatus || "Pending",
@@ -81,6 +95,9 @@ export default function StudentModal({
   function submit() {
     const nextForm = {
       ...form,
+      admissionNo:
+        form.admissionNo.trim() ||
+        `ADM-2026-${Math.floor(Math.random() * 900 + 100)}`,
       name: form.name.trim(),
       whatsapp: form.whatsapp.trim(),
     };
@@ -164,6 +181,32 @@ export default function StudentModal({
                   </div>
                 ) : null}
               </div>
+              
+              {/* Admission Number */}
+              <div>
+                <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Admission Number
+                </label>
+
+                <input
+                  value={form.admissionNo}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, admissionNo: e.target.value }))
+                  }
+                  placeholder="Leave blank to auto-generate"
+                  className="
+                    mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                    text-slate-900 placeholder:text-slate-400
+                    focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
+                    dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
+                    dark:placeholder:text-slate-500 dark:focus:ring-blue-950/40
+                  "
+                />
+
+                <div className="mt-1 text-xs text-slate-500">
+                  Auto-generated if left empty.
+                </div>
+              </div>
 
               {/* WhatsApp */}
               <div>
@@ -194,67 +237,129 @@ export default function StudentModal({
                   </div>
                 )}
               </div>
+              {/* Attendance */}
+              <div>
+                <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Attendance Percentage
+                </label>
 
-              {/* Grade + Fee status */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Grade Level
-                  </label>
-                  <select
-                    value={form.grade}
-                    onChange={(e) => setForm((p) => ({ ...p, grade: e.target.value }))}
-                    className="
-                      mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
-                      text-slate-900
-                      focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
-                      dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
-                      dark:focus:ring-blue-950/40
-                    "
-                  >
-                    {GRADES.map((g) => (
-                      <option key={g} value={g}>
-                        {g}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.grade ? (
-                    <div className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">
-                      {errors.grade}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Fee Status
-                  </label>
-                  <select
-                    value={form.feeStatus}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, feeStatus: e.target.value }))
-                    }
-                    className="
-                      mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
-                      text-slate-900
-                      focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
-                      dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
-                      dark:focus:ring-blue-950/40
-                    "
-                  >
-                    {FEE_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.feeStatus ? (
-                    <div className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">
-                      {errors.feeStatus}
-                    </div>
-                  ) : null}
-                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={form.attendance}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      attendance: Number(e.target.value),
+                    }))
+                  }
+                  className="
+                    mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                    text-slate-900
+                    focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
+                    dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
+                    dark:focus:ring-blue-950/40
+                  "
+                />
               </div>
+              {/* Teacher helper */}
+<div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700 dark:border-blue-900/30 dark:bg-blue-950/20 dark:text-blue-300">
+  Class teacher information will automatically link from the selected class.
+</div>
+              {/* Academic Year */}
+<div>
+  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+    Academic Year
+  </label>
+
+  <select
+    className="
+      mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+      text-slate-900
+      focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100
+      dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100
+      dark:focus:ring-blue-950/40
+    "
+    defaultValue="2026"
+  >
+    <option>2026</option>
+    <option>2025</option>
+  </select>
+</div>
+              {/* Grade + Class + Fee status */}
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  
+  {/* Grade Level */}
+  <div>
+    <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+      Grade Level
+    </label>
+    <select
+      value={form.grade}
+      onChange={(e) => {
+        const newGrade = e.target.value;
+        const gradeObj = SCHOOL_STRUCTURE.find(
+          (g) => g.grade.replace("Grade 0", "Grade ") === newGrade
+        );
+        const firstClassId = gradeObj?.classes[0]?.id || "";
+        setForm((p) => ({ ...p, grade: newGrade, classId: firstClassId }));
+      }}
+      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-950/40"
+    >
+      {SCHOOL_STRUCTURE.map((g) => {
+        const label = g.grade.replace("Grade 0", "Grade ");
+        return (
+          <option key={g.grade} value={label}>
+            {label}
+          </option>
+        );
+      })}
+    </select>
+  </div>
+
+  {/* Class */}
+  <div>
+    <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+      Class
+    </label>
+    <select
+      value={form.classId}
+      onChange={(e) => setForm((p) => ({ ...p, classId: e.target.value }))}
+      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-950/40"
+    >
+      {(() => {
+        const gradeObj = SCHOOL_STRUCTURE.find(
+          (g) => g.grade.replace("Grade 0", "Grade ") === form.grade
+        );
+        return (gradeObj?.classes || []).map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ));
+      })()}
+    </select>
+  </div>
+
+  {/* Fee Status */}
+  <div>
+    <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+      Fee Status
+    </label>
+    <select
+      value={form.feeStatus}
+      onChange={(e) => setForm((p) => ({ ...p, feeStatus: e.target.value }))}
+      className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-950/40"
+    >
+      {FEE_STATUSES.map((s) => (
+        <option key={s} value={s}>
+          {s}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+              
             </div>
           </div>
 
