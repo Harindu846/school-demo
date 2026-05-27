@@ -8,7 +8,7 @@ import StudentTable from "./StudentTable.jsx";
 export default function MainContent() {
     const [selectedClass, setSelectedClass] = useState(null);
   return (
-    <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="min-w-0 flex-1 px-3 py-4 sm:px-6 lg:px-8">
       {/* Page title block */}
       <div>
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
@@ -28,7 +28,7 @@ export default function MainContent() {
 
       {/* KPI Cards */}
       <section className="mt-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <StatCard
             label="Total Students"
             value="50"
@@ -53,7 +53,7 @@ export default function MainContent() {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
   <ClassExplorer
     selectedClassId={selectedClass?.id}
     onSelectClass={setSelectedClass}

@@ -43,9 +43,9 @@ export default function Header({ theme, setTheme, onOpenSidebar }) {
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           {/* Search visual */}
-          <div className="hidden md:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+          <div className="hidden ld:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
             <Search className="h-4 w-4" />
             <span>Search...</span>
             <kbd className="ml-2 hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500 lg:inline-block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
@@ -53,7 +53,9 @@ export default function Header({ theme, setTheme, onOpenSidebar }) {
             </kbd>
           </div>
 
-          <ThemeToggle theme={theme} setTheme={setTheme} />
+          <div className="hidden sm:block">
+            <ThemeToggle theme={theme} setTheme={setTheme} />
+          </div>
 
           <button
             className="
@@ -68,7 +70,7 @@ export default function Header({ theme, setTheme, onOpenSidebar }) {
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-rose-500" />
           </button>
 
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 dark:border-slate-800 dark:bg-slate-900">
+          <div className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 dark:border-slate-800 dark:bg-slate-900">
             <div className="grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
               A
             </div>

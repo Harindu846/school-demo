@@ -8,7 +8,7 @@ import WhatsAppPreviewModal from "./WhatsAppPreviewModal.jsx";
 import ReportCardPreviewModal from "./ReportCardPreviewModal.jsx";
 import TeacherEntryModal from "./TeacherEntryModal.jsx";
 
-const STORAGE_KEY = "school_demo_students_v1";
+const STORAGE_KEY = "school_demo_students_v2";
 
 const DEFAULT_STUDENTS = [
   {
@@ -440,7 +440,7 @@ function handlePreviewReport(reportData) {
 </div>
 
         {/* Table */}
-        <div className="max-h-[420px] overflow-auto">
+        <div className="max-h-[420px] overflow-x-auto overflow-y-auto">
           <table className="min-w-full">
             <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-950/60">
               <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
