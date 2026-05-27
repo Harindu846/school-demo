@@ -146,7 +146,7 @@ export default function TeacherEntryModal({
 
       {/* Modal */}
       <div className="absolute inset-0 flex items-end justify-center p-4 sm:items-center">
-        <div className="w-full max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
 
           {/* Header */}
           <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-800">
@@ -175,10 +175,10 @@ export default function TeacherEntryModal({
           </div>
 
           {/* Body */}
-          <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)] p-5">
+          <div className="grid h-[68vh] gap-5 overflow-hidden lg:grid-cols-[280px_minmax(0,1fr)] p-5">
 
             {/* LEFT STUDENT LIST */}
-            <div>
+            <div className="overflow-hidden">
               {/* Search */}
               <input
                 type="text"
@@ -195,7 +195,7 @@ export default function TeacherEntryModal({
               />
 
               {/* Student queue */}
-              <div className="mt-3 max-h-[520px] space-y-2 overflow-y-auto pr-1">
+              <div className="mt-3 h-[58vh] space-y-2 overflow-y-auto pr-1">
                 {visibleStudents.map((s) => {
                   const active = selectedId === s.id;
 
@@ -250,7 +250,7 @@ export default function TeacherEntryModal({
             </div>
 
             {/* RIGHT FORM */}
-            <div className="max-h-[70vh] overflow-y-auto pr-2">
+            <div className="h-[58vh] overflow-y-auto pr-2">
 
               {/* Student info */}
               {selectedStudent ? (

@@ -125,7 +125,8 @@ export default function StudentModal({
           aria-modal="true"
           className="
             animate-[modalIn_180ms_ease]
-            w-full max-w-lg overflow-hidden rounded-2xl
+            w-full max-w-lg max-h-[90vh]
+            overflow-hidden rounded-2xl
             border border-slate-200 bg-white shadow-xl
             dark:border-slate-800 dark:bg-slate-900
           "
@@ -155,7 +156,7 @@ export default function StudentModal({
           </div>
 
           {/* Body */}
-          <div className="p-5">
+          <div className="max-h-[65vh] overflow-y-auto p-5">
             <div className="grid grid-cols-1 gap-4">
               {/* Name */}
               <div>
