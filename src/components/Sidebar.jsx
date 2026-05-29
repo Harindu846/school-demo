@@ -7,18 +7,20 @@ import {
   Settings,
   LifeBuoy,
   X,
+  Calendar,
 } from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Students", icon: Users },
-  { label: "Report Cards", icon: FileText },
-  { label: "Fees", icon: Wallet },
-  { label: "WhatsApp Dispatch", icon: MessageCircle },
-  { label: "Settings", icon: Settings },
+  { label: "Dashboard", icon: LayoutDashboard, id: "dashboard" },
+  { label: "Attendance", icon: Calendar, id: "attendance" },
+  { label: "Students", icon: Users, id: "students" },
+  { label: "Report Cards", icon: FileText, id: "reports" },
+  { label: "Fees", icon: Wallet, id: "fees" },
+  { label: "WhatsApp Dispatch", icon: MessageCircle, id: "dispatch" },
+  { label: "Settings", icon: Settings, id: "settings" },
 ];
 
-function SidebarContent({ onCloseMobile }) {
+function SidebarContent({ onCloseMobile, onNavigate, currentView }) {
   return (
     <>
       {/* Mobile top bar */}
@@ -56,13 +58,18 @@ function SidebarContent({ onCloseMobile }) {
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
+            const isActive = currentView === item.id;
+
             return (
               <li key={item.label}>
                 <button
-                  onClick={onCloseMobile}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    onCloseMobile();
+                  }}
                   className={[
                     "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                    item.active
+                    isActive
                       ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
                       : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-900",
                   ].join(" ")}
@@ -70,7 +77,7 @@ function SidebarContent({ onCloseMobile }) {
                   <Icon
                     className={[
                       "h-4 w-4",
-                      item.active
+                      isActive
                         ? "text-blue-600 dark:text-blue-300"
                         : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300",
                     ].join(" ")}
@@ -104,7 +111,12 @@ function SidebarContent({ onCloseMobile }) {
   );
 }
 
-export default function Sidebar({ mobileOpen, onCloseMobile }) {
+export default function Sidebar({
+  mobileOpen,
+  onCloseMobile,
+  onNavigate,
+  currentView,
+}) {
   return (
     <>
       {/* Desktop sidebar */}
@@ -116,7 +128,11 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
           dark:border-slate-800 dark:bg-slate-950
         "
       >
-        <SidebarContent onCloseMobile={() => {}} />
+        <SidebarContent
+          onCloseMobile={() => {}}
+          onNavigate={onNavigate}
+          currentView={currentView}
+        />
       </aside>
 
       {/* Mobile overlay */}
@@ -135,7 +151,11 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
             "
           >
             <div className="flex h-full flex-col">
-              <SidebarContent onCloseMobile={onCloseMobile} />
+              <SidebarContent
+                onCloseMobile={onCloseMobile}
+                onNavigate={onNavigate}
+                currentView={currentView}
+              />
             </div>
           </aside>
         </div>
