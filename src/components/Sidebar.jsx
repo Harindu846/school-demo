@@ -129,7 +129,7 @@ export default function Sidebar({
         "
       >
         <SidebarContent
-          onCloseMobile={() => {}}
+          onCloseMobile={() => { }}
           onNavigate={onNavigate}
           currentView={currentView}
         />

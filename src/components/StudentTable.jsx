@@ -146,28 +146,48 @@ export default function StudentTable({ selectedClass }) {
   }
 
   function saveStudent(payload) {
-    if (studentModalMode === "add") {
-      const newStudent = {
-  id: makeId(),
+  // ADD MODE
+  if (studentModalMode === "add") {
+    const newStudent = {
+      id: makeId(),
 
-  admissionNo:
-    payload.admissionNo ||
-    generateAdmissionNo(payload.classId),
+      admissionNo:
+        payload.admissionNo ||
+        generateAdmissionNo(payload.classId),
 
-  attendance: payload.attendance || 95,
+      attendance: payload.attendance || 95,
 
-  ...payload,
+      ...payload,
 
-  reportStatus: "Not Sent",
-};
-    }
+      reportStatus: "Not Sent",
+    };
 
-    setStudents((prev) =>
-      prev.map((s) => (s.id === activeStudent.id ? { ...s, ...payload } : s))
-    );
+    setStudents((prev) => [newStudent, ...prev]);
 
-    pushToast({ type: "success", title: "Changes saved", message: `${payload.name} was updated.` });
+    pushToast({
+      type: "success",
+      title: "Student added",
+      message: `${newStudent.name} added successfully.`,
+    });
+
+    return;
   }
+
+  // EDIT MODE
+  setStudents((prev) =>
+    prev.map((s) =>
+      s.id === activeStudent.id
+        ? { ...s, ...payload }
+        : s
+    )
+  );
+
+  pushToast({
+    type: "success",
+    title: "Changes saved",
+    message: `${payload.name} was updated.`,
+  });
+}
 
   function resetDemo() {
     setStudents((prev) => prev.map((s) => ({ ...s, reportStatus: "Not Sent" })));
